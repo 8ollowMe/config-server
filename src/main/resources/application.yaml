@@ -1,0 +1,29 @@
+server:
+  port: 3100
+
+spring:
+  application:
+    name: config-server
+  profiles:
+    active: git
+
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/8ollowMe/project-configs
+          default-label: main
+          search-paths:
+            - configs/common
+            - configs/{application}/{profile}
+            - configs/{application}
+          basedir: configs
+          clone-on-start: true
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    serviceUrl:
+#   TODO: url, port 수정 요망
+      defaultZone: http://localhost:3101/eureka/
