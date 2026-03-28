@@ -4,6 +4,12 @@
 
 모든 설정 값은 GitHub 저장소를 통해 관리되며, 런타임 중에 서버 재시작 없이 설정을 반영할 수 있습니다.
 
+#### 실행 순서
+
+1. Eureka 서버를 실행 시킵니다.
+2. clone 받은 config-server를 실행 시킵니다.
+3. 각 클라이언트 서비스를 실행(아래 설정 예시 참고)
+
 ---
 
 ## Config 저장소 정보
@@ -41,7 +47,7 @@
 
 각 마이크로서비스에서 Config Server를 사용하기 위한 설정 방법입니다.
 
-### 1) 의존성 추가 (build.gradle)
+### 1) 의존성 추가 (build.gradle) [필수]
 
 ```groovy
 dependencies {
@@ -50,7 +56,7 @@ dependencies {
 }
 ```
 
-### 2) 클라이언트 설정 (application.yaml)
+### 2) 클라이언트 설정 (application.yaml) [필수]
 
 #### eureka-server 사용 시
 
@@ -71,8 +77,11 @@ spring:
 spring:
   application:
     name: vendor-server
+  profiles:
+    default: ${ACTIVE_PROFILE:default}
   config:
-    import: 'optional:configserver: '
+    # 유레카를 통해 접근 지연 및 실패 시, 직접 config-server 를 통해 설정을 받음
+    import: "optional:configserver:http://localhost:13100"
   cloud:
     config:
       discovery:
@@ -90,7 +99,7 @@ eureka:
       defaultZone: ${EUREKA_SERVER_URL:http://localhost:13101/eureka/}
 ```
 
-### 3) 환경 변수 기본값(default) 활용법
+### 3) 환경 변수 기본값(default) 활용법 [선택]
 
 > 환경 변수를 따로 지정하지 않으면 **기본 설정 값**을 따릅니다.
 
@@ -153,13 +162,15 @@ GitHub 저장소(project-configs)의 파일 내용을 수정한 후, 서버 재�
     - **profile 미사용 예시**: `http://localhost:13100/vendor-server/default` 호출 시 `configs/vendor-server/application.yaml`
       JSON 형태로 반환됩니다.
 
-### Eureka 등록 성공 화면 예시
+### 동작 성공 화면 예시
 
-#### Eureka 서버 접속
+#### Eureka 서버에 config-server 등록 확인 예시
+
+- **예시**:`http://localhost:13101/` - 예시 유레카 서버 url
 
 <img src="docs/image/eureka.png">
 
-#### config-server 정상 동작 확인
+#### config-server 정상 동작 예시
 
 - **예시**: `http://localhost:13100/vendor-server/default`
   <img src="docs/image/config-server.png">
